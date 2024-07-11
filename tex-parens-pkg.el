@@ -1,0 +1,2 @@
+;; Generated package description from tex-parens.el  -*- no-byte-compile: t -*-
+(define-package "tex-parens" "0.4.0.20240630.70456" "like lisp.el but for tex" '((emacs "27.1")) :commit "c75939afec7c439fcd694c58506419bc2c734a77" :authors '(("Paul D. Nelson" . "nelson.paul.david@gmail.com")) :maintainer '("Paul D. Nelson" . "nelson.paul.david@gmail.com") :keywords '("tex" "convenience") :url "https://github.com/ultronozm/tex-parens.el")
