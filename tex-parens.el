@@ -3,7 +3,7 @@
 ;; Copyright (C) 2024  Free Software Foundation, Inc.
 
 ;; Author: Paul D. Nelson <nelson.paul.david@gmail.com>
-;; Version: 0.4
+;; Version: 0.5
 ;; URL: https://github.com/ultronozm/tex-parens.el
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: tex, convenience
@@ -279,8 +279,7 @@ theorem-like environments to which you care about applying the
 list and sexp-based navigation commands.  Longer environments
 typically occur at the top level and are best navigated using the
 defun-based commands."
-  :type 'integer
-  :group 'tex-parens)
+  :type 'integer)
 
 (defun tex-parens--math-face ()
   "Return the number of math face modifiers at point.
@@ -301,8 +300,7 @@ defun-based commands."
 
 (defcustom tex-parens-ignore-comments t
   "Whether to ignore comments when searching for delimiters."
-  :type 'boolean
-  :group 'tex-parens)
+  :type 'boolean)
 
 (defun tex-parens--ignore (str begin end)
   "Check if STR should be ignored.
@@ -1083,12 +1081,20 @@ Otherwise, call `self-insert-command'."
 ;;; Avy integration
 
 (defcustom tex-parens-avy-regexp
-  "\\(. \\$\\|..\n[[:space:]]*\\\\begin{\\(eq\\|ali\\)\\)"
+  (rx (or
+       (seq (= 2 anything) "$$")
+       (seq (= 2 anything) "\\(")
+       (seq (= 2 anything) "\\[")
+       (seq anything " $")
+       (seq (= 2 anything)
+            "\n"
+            (zero-or-more space)
+            "\\begin{"
+            (or "eq" "ali" "multline" "gath"))))
   "Regular expression for `tex-parens-avy-jump-to-math'.
-This regexp should match the start of inline math expressions
-and equation environments."
-  :type 'regexp
-  :group 'tex-parens)
+This regexp matches the start of various math environments, keeping a
+couple of characters before the primary match to leave space for Avy."
+  :type 'regexp)
 
 (defun tex-parens-avy-jump-to-math ()
   "Jump inside a math expression using Avy.
