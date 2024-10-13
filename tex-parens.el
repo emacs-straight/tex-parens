@@ -3,7 +3,7 @@
 ;; Copyright (C) 2024  Free Software Foundation, Inc.
 
 ;; Author: Paul D. Nelson <nelson.paul.david@gmail.com>
-;; Version: 0.5
+;; Version: 0.6
 ;; URL: https://github.com/ultronozm/tex-parens.el
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: tex, convenience
@@ -212,7 +212,7 @@ form delimiters which are visibly `left'/`opening' or
                 "\\|\\\\[a-zA-Z]+{"))
   (setq tex-parens--regexp-open+
         (concat
-         "\\|\\\\begin{[^}]+}\\[[^]]+\\]"
+         "\\\\begin{[^}]+}\\[[^]]+\\]\\|"
          tex-parens--regexp-open))
   (setq tex-parens--regexp-close
         (concat (regexp-opt (mapcar #'cdr tex-parens--pairs))
