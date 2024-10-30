@@ -126,8 +126,8 @@
   │   (TeX-mode . tex-parens-setup))
   └────
 
-  The precise use-package declaration that I use may be found in [the
-  LaTeX part of my config] (elpaca branch).
+  The precise use-package declaration that I use may be found in [my
+  config].
 
   Use `M-x customize-group tex-parens' to configure further.  If you
   tweak the customization variables concerning delimiters and modifiers,
@@ -140,8 +140,7 @@
 
 [AUCTeX] <https://www.gnu.org/software/auctex/>
 
-[the LaTeX part of my config]
-<https://github.com/ultronozm/emacsd/blob/main/init-latex.el>
+[my config] <https://github.com/ultronozm/emacsd/blob/main/init.el>
 
 
 3 Variants
