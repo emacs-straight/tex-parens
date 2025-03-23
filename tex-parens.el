@@ -3,7 +3,7 @@
 ;; Copyright (C) 2024  Free Software Foundation, Inc.
 
 ;; Author: Paul D. Nelson <nelson.paul.david@gmail.com>
-;; Version: 0.6
+;; Version: 0.7
 ;; URL: https://github.com/ultronozm/tex-parens.el
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: tex, convenience
@@ -155,6 +155,8 @@ delimiters which are visibly `left'/`opening' or `right'/`closing'."
 (defvar tex-parens--regexp-close nil)
 (defvar tex-parens--regexp-reverse nil)
 (defvar tex-parens--regexp-reverse+ nil)
+(defvar tex-parens--left-modifier-regexp nil)
+(defvar tex-parens--left-delimiter-regexp nil)
 
 (defvar tex-parens--saved-beginning-of-defun-function nil)
 (defvar tex-parens--saved-end-of-defun-function nil)
@@ -166,18 +168,18 @@ delimiters which are visibly `left'/`opening' or `right'/`closing'."
   ;; navigation commands automatically open previews and folds.
   (when (boundp 'preview-auto-reveal-commands)
     (dolist (func (list #'tex-parens-down-list
-			                     #'tex-parens-backward-down-list))
+                        #'tex-parens-backward-down-list))
       (add-to-list 'preview-auto-reveal-commands func)))
 
   (when (boundp 'TeX-fold-auto-reveal-commands)
     (dolist (func (list #'tex-parens-down-list
-			                     #'tex-parens-backward-down-list
-			                     #'tex-parens-up-list
-			                     #'tex-parens-backward-up-list
-			                     #'tex-parens-forward-list
-			                     #'tex-parens-backward-list
-			                     #'tex-parens-forward-sexp
-			                     #'tex-parens-backward-sexp))
+                        #'tex-parens-backward-down-list
+                        #'tex-parens-up-list
+                        #'tex-parens-backward-up-list
+                        #'tex-parens-forward-list
+                        #'tex-parens-backward-list
+                        #'tex-parens-forward-sexp
+                        #'tex-parens-backward-sexp))
       (add-to-list 'TeX-fold-auto-reveal-commands func)))
 
   (setq-local tex-parens--saved-beginning-of-defun-function
@@ -226,6 +228,10 @@ delimiters which are visibly `left'/`opening' or `right'/`closing'."
   (setq tex-parens--regexp-reverse+
         (concat "\\][^[]+\\[}[^{]+{nigeb\\\\\\|"
                 tex-parens--regexp-reverse))
+  (setq tex-parens--left-modifier-regexp
+        (regexp-opt (mapcar #'car tex-parens-left-right-modifier-pairs)))
+  (setq tex-parens--left-delimiter-regexp
+        (regexp-opt (mapcar #'car tex-parens-left-right-delimiter-pairs)))
 
   ;; It would be natural to uncomment the following line, but I had
   ;; problems with it at some point, perhaps related to the fact that
@@ -1063,22 +1069,31 @@ Otherwise, call `self-insert-command'."
   (tex-parens-backward-down-list))
 
 (defun tex-parens-beginning-of-list ()
-  "Move to the beginning of the current balanced group."
+  "Move to the beginning of the current balanced group.
+Pushes a mark at the starting position."
   (interactive)
-  (let ((last (point)))
+  (let ((origin (point))
+        (last (point)))
     (tex-parens-backward-sexp)
     (while (< (point) last)
       (setq last (point))
-      (tex-parens-backward-sexp))))
+      (tex-parens-backward-sexp))
+    (unless (= origin (point))
+      (push-mark origin t))))
 
 (defun tex-parens-end-of-list ()
-  "Move to the end of the current balanced group."
+  "Move to the end of the current balanced group.
+Pushes a mark at the starting position."
   (interactive)
-  (let ((last (point)))
+  (let ((origin (point))
+        (last (point)))
     (tex-parens-forward-sexp)
     (while (> (point) last)
       (setq last (point))
-      (tex-parens-forward-sexp))))
+      (tex-parens-forward-sexp))
+    (unless (= origin (point))
+      (push-mark origin t))))
+
 
 (defun tex-parens-kill-to-end-of-list ()
   "Kill text between point and end of current list."
@@ -1118,7 +1133,7 @@ expressions, then jumps to the selected one and moves point inside the
 expression."
   (interactive)
   (unless (and (require 'avy nil t)
-	              (fboundp 'avy-jump))
+               (fboundp 'avy-jump))
     (error "Avy is not available.  Please install it to use this function"))
   (avy-jump tex-parens-avy-regexp
             :action (lambda (pos)
@@ -1145,6 +1160,56 @@ expressions, then copies the selected one to the kill ring."
                                    (point))))
                         (copy-region-as-kill beg end)
                         (message "Math expression copied")))))
+
+
+(defun tex-parens-adjust-delimiter-size (direction)
+  "Adjust size of the delimiter at point.
+The symbol DIRECTION is either `increase' or `decrease'.  Point must be
+at the beginning of a left delimiter."
+  (interactive)
+  (when (looking-at (concat "\\(" tex-parens--left-modifier-regexp "\\)?\\("
+                            tex-parens--left-delimiter-regexp "\\)"))
+    (let* ((start-pos (point))
+           (left-modifier (or (match-string-no-properties 1) ""))
+           (left-modifier-sequence
+            (cons "" (mapcar #'car tex-parens-left-right-modifier-pairs)))
+           (index (seq-position left-modifier-sequence left-modifier))
+           (next-index
+            (if (eq direction 'increase)
+                (min (1+ index)
+                     (1- (length left-modifier-sequence)))
+              (max (1- index) 0)))
+           (next-left-modifier (seq-elt left-modifier-sequence next-index))
+           (right-modifier
+            (or (cdr (assoc left-modifier tex-parens-left-right-modifier-pairs))
+                ""))
+           (next-right-modifier
+            (or (cdr (assoc next-left-modifier
+                            tex-parens-left-right-modifier-pairs))
+                "")))
+      (save-excursion
+        (tex-parens-forward-list)
+        (tex-parens-backward-down-list)
+        (delete-region (point) (+ (point) (length right-modifier)))
+        (insert next-right-modifier))
+      (delete-region (point) (+ (point) (length left-modifier)))
+      (insert next-left-modifier)
+      (goto-char start-pos))))
+
+(defun tex-parens-decrease-delimiter-size ()
+  "Decrease the size of the delimiter at point.
+Cycles through modifier sizes in reverse: \\Bigl(\\Bigr) →
+\\bigl(\\bigr) → () etc.  Point should be at the beginning of the
+opening delimiter."
+  (interactive)
+  (tex-parens-adjust-delimiter-size 'decrease))
+
+(defun tex-parens-increase-delimiter-size ()
+  "Increase the size of the delimiter at point.
+Cycles through modifier sizes: () → \\bigl(\\bigr) → \\Bigl(\\Bigr) →
+etc.  Point should be at the beginning of the opening delimiter."
+  (interactive)
+  (tex-parens-adjust-delimiter-size 'increase))
 
 (provide 'tex-parens)
 ;;; tex-parens.el ends here
