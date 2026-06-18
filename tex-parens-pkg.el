@@ -1,2 +1,2 @@
-;; Generated package description from tex-parens.el  -*- no-byte-compile: t -*-
-(define-package "tex-parens" "0.7.0.20250709.53958" "Like lisp.el, but for tex" '((emacs "27.1")) :commit "d672d8033e934b7a16e83dabcdf08b7f6c2e65da" :authors '(("Paul D. Nelson" . "nelson.paul.david@gmail.com")) :maintainer '("Paul D. Nelson" . "nelson.paul.david@gmail.com") :keywords '("tex" "convenience") :url "https://github.com/ultronozm/tex-parens.el")
+;; Generated package description from tex-parens.el  -*- no-byte-compile: t; lexical-binding:t -*-
+(define-package "tex-parens" "0.7.0.20260225.9" "Like lisp.el, but for tex" '((emacs "27.1")) :commit "48b4fcd109e5080fe5e91dccf315d6d3fa270aee" :authors '(("Paul D. Nelson" . "nelson.paul.david@gmail.com")) :maintainer '("Paul D. Nelson" . "nelson.paul.david@gmail.com") :keywords '("tex" "convenience") :url "https://github.com/ultronozm/tex-parens.el")

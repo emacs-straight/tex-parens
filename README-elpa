@@ -3,9 +3,6 @@
                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-
-
-
 1 Overview
 ══════════
 
@@ -108,19 +105,19 @@
   │ (use-package tex-parens
   │   :bind
   │   (:map LaTeX-mode-map
-  │ 	("C-M-f" . tex-parens-forward-sexp)
-  │ 	("C-M-b" . tex-parens-backward-sexp)
-  │ 	("C-M-n" . tex-parens-forward-list)
-  │ 	("C-M-p" . tex-parens-backward-list)
-  │ 	("C-M-u" . tex-parens-backward-up-list)
-  │ 	("M-u" . tex-parens-up-list)
-  │ 	("C-M-g" . tex-parens-down-list)
-  │ 	("M-_" . tex-parens-delete-pair)
-  │ 	("C-M-SPC" . tex-parens-mark-sexp)
-  │ 	("C-M-k" . tex-parens-kill-sexp)
-  │ 	("C-M-t" . tex-parens-transpose-sexps)
-  │ 	("C-M-<backspace>" . tex-parens-backward-kill-sexp)
-  │ 	("M-+" . tex-parens-raise-sexp))
+  │         ("C-M-f" . tex-parens-forward-sexp)
+  │         ("C-M-b" . tex-parens-backward-sexp)
+  │         ("C-M-n" . tex-parens-forward-list)
+  │         ("C-M-p" . tex-parens-backward-list)
+  │         ("C-M-u" . tex-parens-backward-up-list)
+  │         ("M-u" . tex-parens-up-list)
+  │         ("C-M-g" . tex-parens-down-list)
+  │         ("M-_" . tex-parens-delete-pair)
+  │         ("C-M-SPC" . tex-parens-mark-sexp)
+  │         ("C-M-k" . tex-parens-kill-sexp)
+  │         ("C-M-t" . tex-parens-transpose-sexps)
+  │         ("C-M-<backspace>" . tex-parens-backward-kill-sexp)
+  │         ("M-+" . tex-parens-raise-sexp))
   │   :hook
   │   (tex-mode . tex-parens-setup)
   │   (TeX-mode . tex-parens-setup))
@@ -210,3 +207,12 @@
 
 [repeat map]
 <https://www.gnu.org/software/emacs/manual/html_node/use-package/Binding-to-repeat_002dmaps.html>
+
+
+4 Testing
+═════════
+
+  Run the automated ERT suite with `make check'.  The `Makefile' invokes
+  Emacs in batch mode (`emacs -Q --batch -L . -l
+  tests/tex-paren-tests.el') so contributors and CI can verify changes
+  consistently.
